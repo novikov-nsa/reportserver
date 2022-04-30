@@ -1,0 +1,12 @@
+{% extends "layout/basic.html" %}
+
+{% block content %}
+    {% for task in tasks %}
+    <div>
+        <h2>{{ task.reportName }}</h2>
+        <p>{{ task.reportParameters }}</p>
+        <p>{{ task.state.systemName }}</a></p>
+        <p>{{ state.startReportDateTime|date:"d.m.Y H:i:s" }}</p>
+    </div>
+    {% endfor %}
+{% endblock %}
