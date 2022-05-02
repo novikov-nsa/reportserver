@@ -1,6 +1,9 @@
 from django.db import models
 
 # Create your models here.
+def get_new_state():
+    item = States.objects.get(systemName='NEW')
+    return item.pk
 
 class States(models.Model):
     def __str__(self):
@@ -19,9 +22,9 @@ class Tasks(models.Model):
     reportCode = models.CharField(max_length=50, verbose_name='Код отчета')
     reportName = models.TextField(verbose_name='Наименование отчета')
     reportParameters = models.TextField(verbose_name='Параметры формирования')
-    startReportDateTime = models.DateTimeField(verbose_name='Дата и время запуска')
+    startReportDateTime = models.DateTimeField(verbose_name='Дата и время запуска', auto_now_add=True, null=True, blank=True)
     endReportDateTime = models.DateTimeField(verbose_name='Дата и время окончания', null=True, blank=True)
-    state = models.ForeignKey('States', on_delete=models.PROTECT, verbose_name='Статус')
+    state = models.ForeignKey('States', on_delete=models.PROTECT, verbose_name='Статус', default=get_new_state())
     fileName = models.TextField(verbose_name='Имя файла', null=True, blank=True)
     reportContetn = models.BinaryField(verbose_name='Отчет', null=True, blank=True)
 
@@ -29,4 +32,6 @@ class Tasks(models.Model):
         verbose_name_plural = 'Задачи'
         verbose_name = 'Задача'
         ordering = ['-startReportDateTime']
+
+
 

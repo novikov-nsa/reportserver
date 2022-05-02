@@ -1,0 +1,12 @@
+{% extends "layout/basic.html" %}
+
+{% block title %}Параметры формирования отчета{% endblock %}
+
+{% block content %}
+<h2>Параметры отчета</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Сформировать">
+    </form>
+{% endblock %}
