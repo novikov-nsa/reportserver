@@ -1,7 +1,9 @@
-from django.forms import ModelForm
+from django import forms
 from .models import Tasks, States
+from django.contrib.auth.models import User
 
-class RunReport(ModelForm):
+class RunReport(forms.ModelForm):
+
     class Meta:
         model = Tasks
-        fields = ('reportCode', 'reportName', 'reportParameters')
+        fields = ('userLogin', 'reportCode', 'reportName', 'reportParameters')

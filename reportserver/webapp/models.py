@@ -1,6 +1,12 @@
+from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.auth import authenticate
+
 
 # Create your models here.
+def get_current_user():
+    pass
+
 def get_new_state():
     item = States.objects.get(systemName='NEW')
     return item.pk
@@ -18,7 +24,8 @@ class States(models.Model):
         ordering = ['systemName']
 
 class Tasks(models.Model):
-    userLogin = models.CharField(max_length=200, verbose_name='Логин пользователя')
+    userLogin = models.ForeignKey(User, editable=True, null=True, blank=True, on_delete=models.PROTECT,
+                                  verbose_name="Пользователь, сформировавший запрос")
     reportCode = models.CharField(max_length=50, verbose_name='Код отчета')
     reportName = models.TextField(verbose_name='Наименование отчета')
     reportParameters = models.TextField(verbose_name='Параметры формирования')
@@ -27,6 +34,7 @@ class Tasks(models.Model):
     state = models.ForeignKey('States', on_delete=models.PROTECT, verbose_name='Статус', default=get_new_state())
     fileName = models.TextField(verbose_name='Имя файла', null=True, blank=True)
     reportContetn = models.BinaryField(verbose_name='Отчет', null=True, blank=True)
+
 
     class Meta:
         verbose_name_plural = 'Задачи'

@@ -5,6 +5,7 @@
 {% block content %}
 <h2>Параметры отчета</h2>
     <form method="post">
+        Пользователь: {{ user.username }}
         {% csrf_token %}
         {{ form.as_p }}
         <input type="submit" value="Сформировать">

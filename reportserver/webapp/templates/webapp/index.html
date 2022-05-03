@@ -3,10 +3,11 @@
 {% block content %}
     {% for task in tasks %}
     <div>
-        <h2>{{ task.reportName }}</h2>
-        <p>{{ task.reportParameters }}</p>
-        <p>{{ task.state.systemName }}</a></p>
-        <p>{{ state.startReportDateTime|date:"d.m.Y H:i:s" }}</p>
+        <h2>Отчет: {{ task.reportName }}</h2>
+        <p>Пользователь: {{ task.userLogin.username }}</p>
+        <p>Параметры отчета: {{ task.reportParameters }}</p>
+        <p>Статус: {{ task.state.systemName }}</a></p>
+        <p>Время запуска отчета: {{ task.startReportDateTime|date:"d.m.Y H:i:s" }}</p>
     </div>
     {% endfor %}
 {% endblock %}

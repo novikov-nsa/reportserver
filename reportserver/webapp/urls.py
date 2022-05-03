@@ -1,8 +1,10 @@
 from django.urls import path
-from .views import index, SetParamView
+from django.contrib.auth.views import LoginView
+from .views import index, run_report
 
 urlpatterns = [
-    path('runreport/', SetParamView.as_view(), name='runreport'),
+    path('accounts/login/', LoginView.as_view(), name='login'),
+    path('runreport/', run_report, name='runreport'),
     path('', index, name='index')
 ]
 
