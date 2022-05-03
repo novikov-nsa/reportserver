@@ -1,13 +1,35 @@
 {% extends "layout/basic.html" %}
 
 {% block content %}
-    {% for task in tasks %}
-    <div>
-        <h2>Отчет: {{ task.reportName }}</h2>
-        <p>Пользователь: {{ task.userLogin.username }}</p>
-        <p>Параметры отчета: {{ task.reportParameters }}</p>
-        <p>Статус: {{ task.state.systemName }}</a></p>
-        <p>Время запуска отчета: {{ task.startReportDateTime|date:"d.m.Y H:i:s" }}</p>
-    </div>
-    {% endfor %}
+
+    <table class="table table-striped">
+        <thead>
+            <th>Отчет</th>
+            <th>Пользователь</th>
+            <th>Статус</th>
+            <th>Параметры</th>
+            <th>Время запуска отчета</th>
+            <th>Время формирования отчета</th>
+            <th>Файл отчета</th>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td>{{ task.reportName }}</td>
+                <td>{{ task.userLogin.username }}</td>
+                <td>{{ task.state.name }}</td>
+                <td>{{ task.reportParameters }}</td>
+
+                <td>{{ task.startReportDateTime|date:"d.m.Y H:i:s" }}</td>
+                <td>{{ task.endReportDateTime|date:"d.m.Y H:i:s" }}</td>
+                {% if task.fileName is None %}
+                <td></td>
+                {% else %}
+                <td>{{ task.fileName }}</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
 {% endblock %}
