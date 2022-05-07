@@ -6,4 +6,4 @@ class RunReport(forms.ModelForm):
 
     class Meta:
         model = Tasks
-        fields = ('userLogin', 'reportCode', 'reportName', 'reportParameters')
+        fields = ('userLogin', 'report', 'reportParameters')

@@ -1,18 +1,15 @@
 from django.contrib import admin
-from .models import States, Tasks
+from .models import States, Tasks, Report
 
 class TasksAdmin(admin.ModelAdmin):
-    list_display = ('userLogin', 'reportCode', 'reportName', 'reportParameters', 'reportParameters', 'startReportDateTime',
+    list_display = ('userLogin', 'report', 'reportParameters', 'reportParameters', 'startReportDateTime',
                     'endReportDateTime', 'state', 'fileName')
-    list_display_links = ('reportCode', 'reportName')
+    list_display_links = ('report',)
     search_fields = ('userLogin', 'reportCode', 'reportName')
 
-    def save_model(self, request, obj, form, change):
-        if not obj.created_by:
-            obj.created_by = request.user
-        obj.save()
 
 admin.site.register(Tasks, TasksAdmin)
 admin.site.register(States)
+admin.site.register(Report)
 
 # Register your models here.

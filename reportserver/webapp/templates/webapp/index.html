@@ -15,17 +15,17 @@
         <tbody>
         {% for task in tasks %}
             <tr>
-                <td>{{ task.reportName }}</td>
+                <td>{{ task.report.name }}</td>
                 <td>{{ task.userLogin.username }}</td>
                 <td>{{ task.state.name }}</td>
                 <td>{{ task.reportParameters }}</td>
 
-                <td>{{ task.startReportDateTime|date:"d.m.Y H:i:s" }}</td>
-                <td>{{ task.endReportDateTime|date:"d.m.Y H:i:s" }}</td>
+                <td>{{ task.startReportDateTime|date:"d.m.Y H:i:s.u" }}</td>
+                <td>{{ task.endReportDateTime|date:"d.m.Y H:i:s.u" }}</td>
                 {% if task.fileName is None %}
                 <td></td>
                 {% else %}
-                <td>{{ task.fileName }}</td>
+                <td><a href = "{% url 'getreport' task.pk %}">{{ task.fileName }}</a></td>
                 {% endif %}
             </tr>
         {% endfor %}

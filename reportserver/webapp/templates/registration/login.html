@@ -1,16 +1,25 @@
-{% extends "layout/basic.html" %}
 
-{% block title %}Вход{% endblock %}
+{% load bootstrap4 %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
 
-{% block content %}
-<h2>Вход</h2>
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery=True %}
+    <title>Главная:: Аутентификация</title>
+</head>
+
+
+<!-- {% block content %}-->
+<h2 class="container">Вход</h2>
 {% if user.is_authenticated %}
 <р>Вы уже выполнили вход.</р>
 {% else %}
-<form method="post">
+<form class="container" method="post">
     {% csrf_token %} {{ form.as_p }}
     <input type="hidden" name="next" value="{{ next }}">
     <input type="submit" value="Войти">
 </form>
 {% endif %}
-{% endblock %}
+<!-- {% endblock %} -->
