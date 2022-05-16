@@ -56,5 +56,32 @@
                 </reportPage>
             </reportPages>
         </report>
+        <report codeReport="test_report">
+            <nameReport>Отчет для проверки</nameReport>
+            <template>какой-то шаблон</template>
+            <outDir>куда-то выгружаем</outDir>
+            <fileNameGenerateRule>
+                <segment segmentType="segmentString">Файл тестовый</segment>
+            </fileNameGenerateRule>
+            <params>
+                <parametr id="date_from">
+                    <parametrName>Дата начала</parametrName>
+                    <parametrType>date</parametrType>
+                    <parametrRequired>true</parametrRequired>
+                </parametr>
+                <parametr id="date_to">
+                    <parametrName>Дата окончания</parametrName>
+                    <parametrType>date</parametrType>
+                    <parametrRequired>true</parametrRequired>
+                </parametr>
+            </params>
+            <reportPages>
+                <reportPage codePage="page1">
+                    <pageName>Лист1</pageName>
+                    <sqlFile>test_repoer_page1.sql</sqlFile>
+                    <headerRows>5</headerRows>
+                </reportPage>
+            </reportPages>
+        </report>
     </reports>
 </ns:tReport>

@@ -1,48 +1,7 @@
 import configparser
+from lxml import etree
 
-report_config = {'schl_foms_89n_only':{
-                                        'name': 'Сводный чек-лист (89н)',
-                                        'template': '/Users/sergejnovikov/PycharmProjects/reportserver/treport_files/templates/schl_foms_89n_only.xlsx',
-                                        'params': {'p_start_date': {'name':'Дата начала отчетного периода',
-                                                                    'type': 'date',
-                                                                    'required': True
-                                                                    },
-                                                   'p_end_date': {'name': 'Дата окончания отчетного периода',
-                                                                  'type': 'date',
-                                                                  'required': True},
-                                                   'is_ks':{'name': 'Только КС',
-                                                            'type': 'boolean',
-                                                            'default_value': True,
-                                                            'required': True},
-                                                   'is_app': {'name': 'Только АПП',
-                                                              'type': 'boolean',
-                                                              'default_value': True,
-                                                              'required': True},
-                                                   'list_tfoms_codes': {
-                                                       'name': 'Список кодов ТФОМС',
-                                                       'type': 'sqlstring',
-                                                       'required': False
-                                                   }},
-                                        'report_pages':{
-                                                    'page1': {
-                                                        'page_name': 'Р_1 Общая информация',
-                                                        'sql_file': '/Users/sergejnovikov/PycharmProjects/reportserver/treport_files/sql/schl_foms_89n_only_page1.sql',
-                                                        'header_rows': 13,
-                                                        'ignored_columns': [26, 29, 32]
-                                                    },
-                                                    'page2': {
-                                                        'page_name': 'Р_2 Сведения о ЗЛ и лечении КС',
-                                                        'sql_file': '/Users/sergejnovikov/PycharmProjects/reportserver/treport_files/sql/schl_foms_89n_only_page2.sql',
-                                                        'header_rows': 12,
-                                                        'ignored_columns': [5, 6, 7, 15, 17, 21, 30, 33, 36, 39, 42, 45, 48, 51, 53, 55, 57, 59, 61]
-                                                    }
-
-
-                                        },
-                                        'out_dir': '/Users/sergejnovikov/PycharmProjects/reportserver/treport_files/out/',
-                                        'file_name_generate_rule': 'Сводный_чек-лист_{p_start_date}_{p_end_date}_'
-                }
-}
+XSD_FILE_NAME = 'treports.xsd'
 
 def get_config(path_to_inifile):
     config = configparser.ConfigParser()
@@ -53,10 +12,97 @@ def get_config(path_to_inifile):
     port = config.get('database', 'port')
     database = config.get('database', 'database')
     db_url = f'postgresql://{login}:{password}@{host}:{port}/{database}'
-    return db_url
+    path_to_params_reports_file = config.get('report', 'params_reports')
+    return db_url, path_to_params_reports_file
+
+
+def get_errors_validation(xml_doc, xsd_doc):
+    xmlschema = etree.XMLSchema(xsd_doc)
+    log = xmlschema.error_log
+    #return xmlschema.assertValid(xml_doc)
+    return xmlschema.assert_(xml_doc)
+
+
+
+class Report():
+    codeReport = ''
+    nameReport = ''
+    template = ''
+    outDir = ''
+    params_report = {}
+    xml_validation_result : bool = None
+    report_file_name = ''
+    reportPages = {}
+    '''reportPages - атрибут, в котором хранятся сведения о листе отчета. Атрибут является словарем и имеет следующие ключи:
+    pageName - имя листа в xlsx-файле
+    sqlFile - путь к файлу, в котором хранится SQL-запрос
+    headerRows - количество строк на листе, которые выделены под заголовок
+    ignoredColumns - список номеров колонок, которые необходимо игнорировать при формировании отчета
+    sqlText - текст SQL-запроса, который сформирован на основании текста в файле с подставленными значениями параметров запроса
+    sqlResult - результат выполнения SQL-запроса
+    '''
+    contentReport = None
+    '''
+    Контент сформированного отчета. 
+    '''
+
+
+    def __init__(self, report_code, path_to_params_reports_file):
+        self.codeReport = report_code
+        self.get_params_report(path_to_params_reports_file)
+
+    def validate_params_report(self, xml_doc, xsd_doc):
+        xmlschema = etree.XMLSchema(xsd_doc)
+        return xmlschema.validate(xml_doc)
+
+
+    def get_params_report(self, path_to_params_reports_file):
+
+        def generate_file_name(filename_rule):
+            return 'Итоговый файл.xlsx'
+
+        xsd_f = open(XSD_FILE_NAME)
+        xml_f = open(path_to_params_reports_file)
+        xsd_doc = etree.parse(xsd_f)
+        xml_doc = etree.parse(xml_f)
+        self.xml_validation_result = self.validate_params_report(xml_doc, xsd_doc)
+        if self.xml_validation_result:
+            xml_root = xml_doc.getroot()[0]
+            for item_report in xml_root:
+                if item_report.attrib['codeReport'] == self.codeReport:
+                    self.nameReport = item_report[0].text
+                    self.template = item_report[1].text
+                    self.outDir = item_report[2].text
+                    file_name_rule = item_report[3]
+                    self.report_file_name = generate_file_name(file_name_rule)
+
+                    params = item_report[4]
+                    for item_params in params:
+                        parametr_code = item_params.attrib['id']
+                        self.params_report[parametr_code] = {}
+                        for parametr in item_params:
+                            self.params_report[parametr_code][parametr.tag] = parametr.text
+
+                    report_pages = item_report[5]
+                    for item_page in report_pages:
+                        page_code = item_page.attrib['codePage']
+                        self.reportPages[page_code] = {}
+                        for parametr_page in item_page:
+                            self.reportPages[page_code][parametr_page.tag] = parametr_page.text
+
+
 
 
 
 def main(report_code):
-    db_url = get_config('/Users/sergejnovikov/PycharmProjects/reportserver/treport/main.ini')
+    db_url, path_to_params_reports_file = get_config('/Users/sergejnovikov/PycharmProjects/reportserver/treport/main.ini')
+    report = Report(report_code, path_to_params_reports_file)
+
+    if report.xml_validation_result:
+        print(report.codeReport, report.nameReport, report.template)
+        print(report.params_report)
+        print(report.outDir, report.report_file_name)
+        print(report.reportPages)
+    else:
+        print('Файл не корректен')
 
