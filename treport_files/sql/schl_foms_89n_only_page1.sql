@@ -95,7 +95,7 @@ with all_docs as
                  (case
                       when datazl_datefinishmp is not null
                           then datazl_datefinishmp - datazl_datestartmp
-                      else to_date('{p_end_date}', 'dd.mm.yyyy') - maininfo_datecompletionichlks
+                      else to_date('{{ p_end_date }}', 'dd.mm.yyyy') - maininfo_datecompletionichlks
                      end)                                                                                        as days
 
           from dc_doc_01_003 d003
@@ -103,13 +103,10 @@ with all_docs as
                    inner join doctype dtc on dtc.doctypeid = d.doctypeid
                    inner join docstate ds on d.docstateid = ds.docstateid
 
-    where {p_is_ks}
-      and date(coalesce(d003.datazl_datefinishmp, d003.maininfo_datecompletionichlks)) between symmetric to_date('{p_start_date}', 'dd.mm.yyyy') and to_date('{p_end_date}', 'dd.mm.yyyy')
-      {d003_select_create_date}
+    where {{ p_is_ks }}
+      and date(coalesce(d003.datazl_datefinishmp, d003.maininfo_datecompletionichlks)) between symmetric to_date('{{ p_start_date }}', 'dd.mm.yyyy') and to_date('{{ p_end_date }}', 'dd.mm.yyyy')
       and upper(dtc.systemname) = 'DOC_01_003'
       and upper(ds.systemname) in ('RECEIVED', 'INCLUDED_CONSOLID')
-      {d003_select_tfoms_list}
-      {d003_custom_request}
           union all
           select false                                                                                           as isd003,
                  true                                                                                            as isd004,
@@ -206,7 +203,7 @@ with all_docs as
                  (case
                       when datazl_datefinishmp is not null
                           then datazl_datefinishmp - datazl_datestartmp
-                      else to_date('{p_end_date}', 'dd.mm.yyyy') - maininfo_datecompletionichlapp
+                      else to_date('{{ p_end_date }}', 'dd.mm.yyyy') - maininfo_datecompletionichlapp
                      end)                                                                                        as days
 
           from dc_doc_01_004 d004
@@ -214,13 +211,11 @@ with all_docs as
                    inner join doctype dtc on dtc.doctypeid = d.doctypeid
                    inner join docstate ds on d.docstateid = ds.docstateid
 
-    where {p_is_app}
-      and date(coalesce(d004.datazl_datefinishmp, d004.maininfo_datecompletionichlapp)) between symmetric to_date('{p_start_date}', 'dd.mm.yyyy') and to_date('{p_end_date}', 'dd.mm.yyyy')
-      {d004_select_create_date}
+    where {{ p_is_app }}
+      and date(coalesce(d004.datazl_datefinishmp, d004.maininfo_datecompletionichlapp)) between symmetric to_date('{{ p_start_date }}', 'dd.mm.yyyy') and to_date('{{ p_end_date }}', 'dd.mm.yyyy')
       and upper(dtc.systemname) = 'DOC_01_004'
       and upper(ds.systemname) in ('RECEIVED', 'INCLUDED_CONSOLID')
-      {d004_select_tfoms_list}
-      {d004_custom_request}),
+      ),
      calc_data as
          (select maininfo_codetfoms::varchar(6)                                                            as codetfoms,
                  count(all_docs.docid)::integer                                                            as ICHLNumber,
@@ -740,7 +735,7 @@ with all_docs as
                  sum(case
                          when coalesce(il.sick_p_amb, false) = false
                              and extract(year from (age(il.sick_date_2, il.pers_dr))) between 18 and 64
-                             and abs(coalesce(il.sick_date_3, to_date('{p_end_date}', 'dd.mm.yyyy')-10) - il.sick_date_2) > 5
+                             and abs(coalesce(il.sick_date_3, to_date('{{ p_end_date }}', 'dd.mm.yyyy')-10) - il.sick_date_2) > 5
                              then 1
                          else 0 end) as CovidKS18_64,
 
@@ -789,7 +784,7 @@ with all_docs as
                  sum(case
                          when coalesce(il.sick_p_amb, false)
                              and extract(year from (age(il.sick_date_1, il.pers_dr))) <= 17
-                             and abs(coalesce(il.sick_date_3, to_date('{p_end_date}', 'dd.mm.yyyy')-10) - il.sick_date_1) > 7
+                             and abs(coalesce(il.sick_date_3, to_date('{{ p_end_date }}', 'dd.mm.yyyy')-10) - il.sick_date_1) > 7
                              then 1
                          else 0 end) as CovidAPP17,
                  sum(case
@@ -847,7 +842,7 @@ with all_docs as
                  sum(case
                          when coalesce(il.sick_p_amb, false)
                              and extract(year from (age(il.sick_date_1, il.pers_dr))) > 65
-                             and abs(coalesce(il.sick_date_3, to_date('{p_end_date}', 'dd.mm.yyyy')-10) - il.sick_date_1) > 7
+                             and abs(coalesce(il.sick_date_3, to_date('{{ p_end_date }}', 'dd.mm.yyyy')-10) - il.sick_date_1) > 7
                              then 1
                          else 0 end) as CovidAPP65,
                  sum(case
@@ -859,11 +854,10 @@ with all_docs as
           from ufos.dc_insurancelists il
                    --        inner join doc d_erz on (d_erz.docid = il.docid)
                    inner join dc_report_base d_RB_erz on (d_RB_erz.docid = il.docid)
-          where
-            {p_need_covid_data}
+          where false
             and il.info_p_inf = 'COVID'
             and il.sick_ds1 in ('U07.1', 'U07.2')
-            and il.sick_date_1 between to_date('{p_start_date}', 'dd.mm.yyyy')-10 and to_date('{p_end_date}', 'dd.mm.yyyy')-10
+            and il.sick_date_1 between to_date('{{ p_start_date }}', 'dd.mm.yyyy')-10 and to_date('{{ p_end_date }}', 'dd.mm.yyyy')-10
 
           group by d_rb_erz.code_tfoms),
      data_all as (select calc_data.codetfoms,

@@ -96,7 +96,7 @@ with all_docs as
                  (case
                       when datazl_datefinishmp is not null
                           then datazl_datefinishmp - datazl_datestartmp
-                      else to_date('{p_end_date}', 'dd.mm.yyyy') - maininfo_datecompletionichlks
+                      else to_date(' {{ p_end_date }}', 'dd.mm.yyyy') - maininfo_datecompletionichlks
                      end)                                                                                        as days,
                  case
                      when datacovid_deathcovid = '1' then 14
@@ -119,13 +119,10 @@ with all_docs as
                    inner join doctype dtc on dtc.doctypeid = d.doctypeid
                    inner join docstate ds on d.docstateid = ds.docstateid
 
-    where {p_is_ks}
-      and date(coalesce(d003.datazl_datefinishmp, d003.maininfo_datecompletionichlks)) between symmetric to_date('{p_start_date}', 'dd.mm.yyyy') and to_date('{p_end_date}', 'dd.mm.yyyy')
-      {d003_select_create_date}
+    where  {{ p_is_ks }}
+      and date(coalesce(d003.datazl_datefinishmp, d003.maininfo_datecompletionichlks)) between symmetric to_date(' {{ p_start_date }}', 'dd.mm.yyyy') and to_date(' {{ p_end_date }}', 'dd.mm.yyyy')
       and upper(dtc.systemname) = 'DOC_01_003'
       and upper(ds.systemname) in ('RECEIVED', 'INCLUDED_CONSOLID')
-      {d003_select_tfoms_list}
-      {d003_custom_request}
 ),
 
      calc_data as (select all_docs.maininfo_codetfoms::varchar(6)                                                   as codetfoms,
