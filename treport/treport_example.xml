@@ -11,11 +11,12 @@
                 <segment segmentType="segmentString">_</segment>
                 <segment segmentType="parametr">p_end_date</segment>
                 <segment segmentType="segmentString">_</segment>
-                <segment segmentType="function">now('YY')</segment>
+                <segment segmentType="function">now('%Y')</segment>
                 <segment segmentType="segmentString">_</segment>
-                <segment segmentType="function">now('MM')</segment>
+                <segment segmentType="function">now('%m')</segment>
                 <segment segmentType="segmentString">_</segment>
-                <segment segmentType="function">now('DD')</segment>
+                <segment segmentType="function">now('%d')</segment>
+                <segment segmentType="segmentString">.xlsx</segment>
             </fileNameGenerateRule>
             <params>
                 <parametr id="p_start_date">

@@ -59,15 +59,15 @@ class Report():
     def __init__(self, report_code, path_to_params_reports_file, param_values, db_url):
         self.logger = lg.get_logger(__name__)
         self.codeReport = report_code
+        self.paramValues = param_values
         self.get_params_report(path_to_params_reports_file)
         if self.xml_validation_result:
-            self.paramValues = param_values
             self.generate_sql()
             self.dbUrl = db_url
             self.get_dataset()
             self.generate_report()
         else:
-            self.logger.info(f'Проверка XML-файла {path_to_params_reports_file} проведена, файл имеет ошибки')
+            self.logger.error(f'Проверка XML-файла {path_to_params_reports_file} проведена, файл имеет ошибки')
 
 
     def validate_params_report(self, xml_doc, xsd_doc):
@@ -75,7 +75,23 @@ class Report():
         return xmlschema.validate(xml_doc)
 
     def generate_file_name(self, filename_rule):
-        result_file_name = 'Итоговый_файл_' + str(datetime.datetime.now()) + '.xlsx'
+        tmp_rule = []
+        for item_rule in filename_rule:
+            if item_rule.attrib['segmentType'] == 'segmentString':
+                tmp_rule.append(item_rule.text)
+            if item_rule.attrib['segmentType'] == 'parametr':
+                tmp_rule.append(self.paramValues[item_rule.text])
+            if item_rule.attrib['segmentType'] == 'function':
+                name_function : str = item_rule.text
+                if name_function.startswith('now'):
+                    l = len(name_function)
+                    parametr_func = name_function[5:len(name_function)-2]
+                    tmp_rule.append(datetime.datetime.now().strftime(parametr_func))
+                else:
+                    tmp_rule.append(f'func_{name_function}_not_found')
+                    self.logger.warning(f'Функция {name_function} в списке доступных функций не найдена')
+
+        result_file_name = "".join(tmp_rule)
         self.logger.info('Имя файла '+result_file_name+' сформировано')
         return result_file_name
 
