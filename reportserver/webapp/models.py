@@ -32,13 +32,18 @@ class Report(models.Model):
 
 class ReportParameters(models.Model):
     def __str__(self):
-        return self.name
+        return self.parameter_name
 
     report = models.ForeignKey('Report', on_delete=models.PROTECT, verbose_name='Отчет')
     parameter_systemname = models.TextField(verbose_name="Системное имя параметра")
     parameter_name = models.TextField(verbose_name="Имя параметра на русском языке")
     parameter_type = models.TextField(verbose_name="Тип параметра")
     parameter_required = models.BooleanField(verbose_name='Обязательность при использовании')
+
+    class Meta:
+        verbose_name_plural = 'Параметры отчетов'
+        verbose_name = 'Параметр отчета'
+        ordering = ['report', 'parameter_systemname']
 
 class States(models.Model):
     def __str__(self):
@@ -63,7 +68,6 @@ class Tasks(models.Model):
     fileName = models.TextField(verbose_name='Имя файла', null=True, blank=True)
     reportContent = models.BinaryField(verbose_name='Отчет', null=True, blank=True)
     errorMsg = models.TextField(verbose_name='Сообщение об ошибке', null=True, blank=True)
-
 
     class Meta:
         verbose_name_plural = 'Задачи'

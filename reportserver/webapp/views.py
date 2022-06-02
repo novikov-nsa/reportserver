@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from .forms import RunReport
 from .models import Tasks, States
 from django.contrib.auth.models import User
+from django.contrib.auth import logout
 from django import forms
 from django.conf import settings
 
@@ -51,3 +52,7 @@ def download_file(request, pk):
     w_file.write(task.reportContent)
     w_file.close()
     return FileResponse(open(tmp_file, 'rb'), content_type="application/octet-stream")
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect('/')

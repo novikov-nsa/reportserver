@@ -6,3 +6,10 @@
 в базе данных приложения.
 
 Для формирования отчетов используется библиотека [```treport```](https://pypi.org/project/treport/)
+
+## Зависимости
+
+- Django >= 4.0.4
+- django-bootstrap4
+- lxml >= 4.8.0
+- treport

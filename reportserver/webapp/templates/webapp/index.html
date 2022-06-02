@@ -5,7 +5,6 @@
     <table class="table table-striped">
         <thead>
             <th>Отчет</th>
-            <th>Пользователь</th>
             <th>Статус</th>
             <th>Параметры</th>
             <th>Время запуска отчета</th>
@@ -16,7 +15,6 @@
         {% for task in tasks %}
             <tr>
                 <td>{{ task.report.name }}</td>
-                <td>{{ task.userLogin.username }}</td>
                 <td>{{ task.state.name }}</td>
                 <td>{{ task.reportParameters }}</td>
 
