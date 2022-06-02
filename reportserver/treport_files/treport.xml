@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ns:tReport xmlns:ns="urn:nsa:schema:xsd:treport:0.1">
+    <reports>
+        <report codeReport="treport_example">
+            <nameReport>Список документов</nameReport>
+            <template>treport_files/templates/treport_example.xlsx</template>
+            <outDir>treport_files/out/</outDir>
+            <fileNameGenerateRule>
+                <segment segmentType="segmentString">Реестр_документов_</segment>
+                <segment segmentType="parametr">p_start_date</segment>
+                <segment segmentType="segmentString">_</segment>
+                <segment segmentType="parametr">p_end_date</segment>
+                <segment segmentType="segmentString">_</segment>
+                <segment segmentType="function">now('%Y')</segment>
+                <segment segmentType="segmentString">_</segment>
+                <segment segmentType="function">now('%m')</segment>
+                <segment segmentType="segmentString">_</segment>
+                <segment segmentType="function">now('%d')</segment>
+                <segment segmentType="segmentString">_</segment>
+                <segment segmentType="function">now('%H')</segment>
+                <segment segmentType="segmentString">_</segment>
+                <segment segmentType="function">now('%M')</segment>
+                <segment segmentType="segmentString">_</segment>
+                <segment segmentType="function">now('%S')</segment>
+                <segment segmentType="segmentString">_</segment>
+                <segment segmentType="function">now('%f')</segment>
+                <segment segmentType="segmentString">.xlsx</segment>
+            </fileNameGenerateRule>
+            <params>
+                <parametr id="p_start_date">
+                    <parametrName>Дата начала отчетного периода</parametrName>
+                    <parametrType>date</parametrType>
+                    <parametrRequired>true</parametrRequired>
+                </parametr>
+                <parametr id="p_end_date">
+                    <parametrName>Дата окончания отчетного периода</parametrName>
+                    <parametrType>date</parametrType>
+                    <parametrRequired>true</parametrRequired>
+                </parametr>
+            </params>
+            <reportPages>
+                <reportPage codePage="page1">
+                    <pageName>Список документов</pageName>
+                    <sqlFile>treport_files/sql/treport_example_page1.sql</sqlFile>
+                    <headerRows>4</headerRows>
+                    <ignoredColumns>5</ignoredColumns>
+                </reportPage>
+            </reportPages>
+        </report>
+    </reports>
+</ns:tReport>

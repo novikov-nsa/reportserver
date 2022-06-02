@@ -25,6 +25,7 @@ def run_report(request):
             task.report = form.cleaned_data['report']
             task.reportParameters = form.cleaned_data['reportParameters']
             task.save()
+
             return HttpResponseRedirect('/')
     else:
         form = RunReport()
@@ -47,6 +48,6 @@ def download_file(request, pk):
     filename = str(pk)+'_'+task.fileName
     tmp_file = os.path.join(settings.TMP_FILES, filename)
     w_file = open(tmp_file, 'wb+')
-    w_file.write(task.reportContetn)
+    w_file.write(task.reportContent)
     w_file.close()
     return FileResponse(open(tmp_file, 'rb'), content_type="application/octet-stream")

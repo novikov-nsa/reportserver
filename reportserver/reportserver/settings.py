@@ -16,6 +16,9 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TMP_FILES = os.path.join(Path(__file__).resolve().parent.parent,'_tmp_files')
+TREPORT_FILES = os.path.join(Path(__file__).resolve().parent.parent,'treport_files')
+TREPORT_SQL = os.path.join(TREPORT_FILES, 'sql')
+TREPORT_TEMPLATES = os.path.join(TREPORT_FILES, 'templates')
 
 
 # Quick-start development settings - unsuitable for production

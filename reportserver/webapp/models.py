@@ -1,7 +1,15 @@
+import os
+import datetime
 from django.contrib.auth.models import User
 from django.db import models
-from django.contrib.auth import authenticate
+from django.conf import settings
 
+from django.contrib.auth import authenticate
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from treport.report import Report as XSLXReport
+from treport.report import get_config
 
 # Create your models here.
 
@@ -16,12 +24,21 @@ class Report(models.Model):
 
     systemName = models.CharField(max_length=50, verbose_name='Системное имя отчетной формы', unique=True)
     name = models.CharField(max_length=250, verbose_name='Имя отчета на русском языке')
-    parametr = models.TextField(verbose_name='Параметры формирования отчета')
 
     class Meta:
         verbose_name_plural = 'Отчетные формы'
         verbose_name = 'Отчетная форма'
         ordering = ['systemName']
+
+class ReportParameters(models.Model):
+    def __str__(self):
+        return self.name
+
+    report = models.ForeignKey('Report', on_delete=models.PROTECT, verbose_name='Отчет')
+    parameter_systemname = models.TextField(verbose_name="Системное имя параметра")
+    parameter_name = models.TextField(verbose_name="Имя параметра на русском языке")
+    parameter_type = models.TextField(verbose_name="Тип параметра")
+    parameter_required = models.BooleanField(verbose_name='Обязательность при использовании')
 
 class States(models.Model):
     def __str__(self):
@@ -44,7 +61,7 @@ class Tasks(models.Model):
     endReportDateTime = models.DateTimeField(verbose_name='Дата и время окончания', null=True, blank=True)
     state = models.ForeignKey('States', on_delete=models.PROTECT, verbose_name='Статус', default=get_new_state())
     fileName = models.TextField(verbose_name='Имя файла', null=True, blank=True)
-    reportContetn = models.BinaryField(verbose_name='Отчет', null=True, blank=True)
+    reportContent = models.BinaryField(verbose_name='Отчет', null=True, blank=True)
     errorMsg = models.TextField(verbose_name='Сообщение об ошибке', null=True, blank=True)
 
 
@@ -52,6 +69,45 @@ class Tasks(models.Model):
         verbose_name_plural = 'Задачи'
         verbose_name = 'Задача'
         ordering = ['-startReportDateTime']
+
+@receiver(post_save, sender=Tasks)
+def handler_report_run(sender, instance, **kwargs):
+    if kwargs['created']:
+        task = instance
+        task.state = States.objects.get(systemName='FORMING')
+        task.save()
+
+        ini_file = os.path.join(settings.TREPORT_FILES, 'treport.ini')
+        db_url, params_report_file = get_config(ini_file)
+        path_to_params_report_file = os.path.join(settings.TREPORT_FILES, params_report_file)
+
+        report_code = task.report.systemName
+        param_values_list = task.reportParameters.split('\n')
+
+        params_values = {}
+        for parameter in param_values_list:
+            params_values[parameter.split('=')[0]] = parameter.split('=')[1].replace('\r', '')
+        report = XSLXReport(report_code, path_to_params_report_file, params_values, db_url)
+
+        if report.isCorrect:
+            report.contentReport.save(report.outDir + report.report_file_name)
+            with open(report.outDir + report.report_file_name, 'rb') as f:
+                content = f.read()
+            f.close()
+            os.remove(report.outDir + report.report_file_name)
+
+            task.reportContent = content
+            task.fileName = report.report_file_name
+            now = datetime.datetime.now()
+            task.endReportDateTime = now
+            task.state = States.objects.get(systemName='FORMED')
+            task.save()
+        else:
+            now = datetime.datetime.now()
+            task.endReportDateTime = now
+            task.state = States.objects.get(systemName='ERROR')
+            task.save()
+
 
 
 
