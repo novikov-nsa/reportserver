@@ -1,0 +1,15 @@
+{% extends "layout/basic.html" %}
+{% load bootstrap4 %}
+
+{% block title %}Параметры формирования отчета{% endblock %}
+
+{% block content %}
+<h2 class="container">Параметры отчета</h2>
+    <form  class="container" method="post">
+        Пользователь: <b>{{ user.username }}</b><br/><br/>
+        {% csrf_token %}
+        {% bootstrap_form form %}
+
+        {% buttons submit="Заполнить параметры" %} {% endbuttons %}
+    </form>
+{% endblock %}

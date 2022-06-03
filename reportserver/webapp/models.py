@@ -42,6 +42,7 @@ class ReportParameters(models.Model):
     parameter_name = models.TextField(verbose_name="Имя параметра на русском языке")
     parameter_type = models.TextField(verbose_name="Тип параметра")
     parameter_required = models.BooleanField(verbose_name='Обязательность при использовании')
+    number_in_order = models.IntegerField(verbose_name="Номер параметра по порядку")
 
     class Meta:
         verbose_name_plural = 'Параметры отчетов'
@@ -89,7 +90,7 @@ def handler_report_run(sender, instance, **kwargs):
         path_to_params_report_file = os.path.join(settings.TREPORT_FILES, params_report_file)
 
         report_code = task.report.systemName
-        param_values_list = task.reportParameters.split('\n')
+        param_values_list = task.reportParameters.split(';')
 
         params_values = {}
         for parameter in param_values_list:
