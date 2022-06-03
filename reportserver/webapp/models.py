@@ -1,5 +1,7 @@
 import os
 import datetime
+import logging
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.conf import settings
@@ -13,6 +15,7 @@ from treport.report import get_config
 
 # Create your models here.
 
+logger = logging.getLogger(__name__)
 
 def get_new_state():
     item = States.objects.get(systemName='NEW')
@@ -91,6 +94,7 @@ def handler_report_run(sender, instance, **kwargs):
         params_values = {}
         for parameter in param_values_list:
             params_values[parameter.split('=')[0]] = parameter.split('=')[1].replace('\r', '')
+
         report = XSLXReport(report_code, path_to_params_report_file, params_values, db_url)
 
         if report.isCorrect:
@@ -106,6 +110,7 @@ def handler_report_run(sender, instance, **kwargs):
             task.endReportDateTime = now
             task.state = States.objects.get(systemName='FORMED')
             task.save()
+            logger.info(f'Сформированный отчет {report.report_file_name} сохранен а базе данных')
         else:
             now = datetime.datetime.now()
             task.endReportDateTime = now

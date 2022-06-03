@@ -1,18 +1,21 @@
 import os.path
+import logging
 
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, FileResponse
 from django.views.generic.edit import CreateView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
-from .forms import RunReport
-from .models import Tasks, States
+from .forms import RunReport, RunReportParameters
+
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django import forms
 from django.conf import settings
 
 from .models import Tasks, States
+
+logger = logging.getLogger(__name__)
 
 
 @login_required(login_url='accounts/login/')
@@ -31,6 +34,7 @@ def run_report(request):
     else:
         form = RunReport()
         form.fields['userLogin'].widget = forms.HiddenInput()
+        form_parameters = RunReportParameters()
 
     return render(request, 'webapp/setparamreport.html', {'form': form})
 
