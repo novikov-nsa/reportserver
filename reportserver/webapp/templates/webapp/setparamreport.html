@@ -6,9 +6,15 @@
 {% block content %}
 <h2 class="container">Параметры отчета</h2>
     <form  class="container" method="post">
-        Пользователь: {{ user.username }}
         {% csrf_token %}
-        {% bootstrap_form form %}
+        Пользователь: <b>{{ user.username }}</b><br/>
+        Отчет: <b>{{ report_name }}</b><br/><br/>
+        <div class="form-group">
+        {% for parameter, value in parameters_report.items %}
+            <label for="id_{{ parameter }}">{{ value }}</label>
+            <input name="{{ parameter }}" id="id_{{ parameter }}" type="text" class="form-control">
+        {% endfor %}
+        </div>
         {% buttons submit="Сформировать" %} {% endbuttons %}
     </form>
 {% endblock %}
